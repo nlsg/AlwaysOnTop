@@ -8,3 +8,8 @@ dependencies = [
     "pygetwindow==0.0.9",
     "pywin32>=311",
 ]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.12.3",
+]

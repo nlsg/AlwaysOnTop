@@ -1,0 +1,8 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit",
+    },
+    "python.formatting.provider": "none",
+    "ruff.enable": true,
+}
