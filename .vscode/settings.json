@@ -5,4 +5,7 @@
     },
     "python.formatting.provider": "none",
     "ruff.enable": true,
+    "python.analysis.extraPaths": [
+        "src"
+    ]
 }

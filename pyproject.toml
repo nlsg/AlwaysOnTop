@@ -4,12 +4,11 @@ version = "0.1.0"
 description = "pin windows to always be displayed on top of others"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "pygetwindow==0.0.9",
-    "pywin32>=311",
-]
+dependencies = ["pygetwindow==0.0.9", "pywin32>=311"]
 
 [tool.uv]
-dev-dependencies = [
-    "ruff>=0.12.3",
-]
+dev-dependencies = ["ruff>=0.12.3"]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+packages = ["alwaysontop"]
