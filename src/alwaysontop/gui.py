@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import re
+import atexit
 from .api import set_always_on_top, iter_window_titles
 
 # Track pinned windows
@@ -176,4 +177,5 @@ def create_gui():
     root.bind("<FocusIn>", lambda *_: refresh_windows(tree, root.title()))
 
     refresh_windows(tree, root.title())
+    atexit.register(lambda: unpin_all(tree))
     root.mainloop()
