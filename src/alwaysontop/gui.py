@@ -51,6 +51,7 @@ def create_gui():
     root.resizable(True, True)
     root.attributes("-topmost", True)
 
+    root.bind("<FocusIn>", lambda *_: refresh_windows(tree, status, root.title()))
     style = ttk.Style()
     style.theme_use("clam")
 
