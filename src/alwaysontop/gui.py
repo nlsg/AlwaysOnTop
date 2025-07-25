@@ -1,19 +1,28 @@
 import tkinter as tk
 from tkinter import ttk
+import re
 from .api import set_always_on_top, iter_window_titles
 
 # Track pinned windows
 pinned_windows = {}
+search_pattern = ""
 
 
 def refresh_windows(tree, root_title):
-    global pinned_windows
+    global pinned_windows, search_pattern
+    try:
+        pattern = re.compile(search_pattern, re.IGNORECASE)
+    except re.error:
+        pattern = None  # invalid regex — show nothing
+
     window_list = list(iter_window_titles(excludes=[root_title]))
 
     for item in tree.get_children():
         tree.delete(item)
 
     for title in window_list:
+        if pattern and not pattern.search(title):
+            continue
         pinned = pinned_windows.get(title, False)
         icon = "📌" if pinned else "❌"
         tree.insert("", tk.END, values=(title, icon))
@@ -53,10 +62,16 @@ def unpin_all(tree):
         tree.item(item, values=(window_title, "❌"))
 
 
+def on_search_change(entry, tree, root_title):
+    global search_pattern
+    search_pattern = entry.get()
+    refresh_windows(tree, root_title)
+
+
 def create_gui():
     root = tk.Tk()
     root.title("📌 Always On Top")
-    root.geometry("500x320")
+    root.geometry("500x360")
     root.configure(bg="#1a1b26")
     root.resizable(True, True)
     root.attributes("-topmost", True)
@@ -103,6 +118,19 @@ def create_gui():
     main = ttk.Frame(root, padding=20)
     main.pack(expand=True, fill=tk.BOTH)
 
+    # --- Search bar ---
+    search_frame = ttk.Frame(main)
+    search_frame.pack(fill=tk.X, pady=(0, 10))
+
+    search_label = ttk.Label(search_frame, text="🔍 Filter (regex):")
+    search_label.pack(side=tk.LEFT)
+
+    search_entry = ttk.Entry(search_frame)
+    search_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 0))
+    search_entry.bind(
+        "<KeyRelease>", lambda e: on_search_change(search_entry, tree, root.title())
+    )
+
     # --- Treeview with scrollbars ---
     tree_frame = ttk.Frame(main)
     tree_frame.pack(expand=True, fill=tk.BOTH)
@@ -127,16 +155,18 @@ def create_gui():
 
     tree.bind("<Button-1>", lambda e: toggle_pin(tree, e))
 
-    # Button to unpin all
+    # Buttons
     button_frame = ttk.Frame(main)
     button_frame.pack(pady=10)
 
     unpin_all_btn = ttk.Button(
-        button_frame, text="✖️ Unpin All", command=lambda: unpin_all(tree)
+        button_frame,
+        text="✖️ Unpin All",
+        command=lambda: unpin_all(tree),
     )
     unpin_all_btn.pack()
 
-    # Automatically refresh when window is focused
+    # Refresh when window gets focus
     root.bind("<FocusIn>", lambda *_: refresh_windows(tree, root.title()))
 
     refresh_windows(tree, root.title())
