@@ -14,6 +14,7 @@ Built with Python and Tkinter, it gives you total control over your workspace hi
 - 🎨 Dark-themed UI for visual comfort
 - 🪟 Built for Windows, using native APIs
 - 📌 Always On Top is always pined for accessability ( just minimize it )
+- filter window-list ( with regex )
 
 ---
 
