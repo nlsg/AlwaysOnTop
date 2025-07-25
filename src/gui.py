@@ -136,7 +136,3 @@ def create_gui():
 
     refresh_windows(tree, status, root.title())
     root.mainloop()
-
-
-if __name__ == "__main__":
-    create_gui()
