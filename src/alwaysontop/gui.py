@@ -10,6 +10,7 @@ search_pattern = ""
 
 def refresh_windows(tree, root_title):
     global pinned_windows, search_pattern
+
     try:
         pattern = re.compile(search_pattern, re.IGNORECASE)
     except re.error:
@@ -17,13 +18,21 @@ def refresh_windows(tree, root_title):
 
     window_list = list(iter_window_titles(excludes=[root_title]))
 
-    for item in tree.get_children():
-        tree.delete(item)
-
+    filtered = []
     for title in window_list:
         if pattern and not pattern.search(title):
             continue
-        pinned = pinned_windows.get(title, False)
+        is_pinned = pinned_windows.get(title, False)
+        filtered.append((title, is_pinned))
+
+    # Sort: pinned windows first, then alphabetically
+    filtered.sort(key=lambda x: (not x[1], x[0].lower()))
+
+    # Clear and re-populate tree
+    for item in tree.get_children():
+        tree.delete(item)
+
+    for title, pinned in filtered:
         icon = "📌" if pinned else "❌"
         tree.insert("", tk.END, values=(title, icon))
 
@@ -46,20 +55,17 @@ def toggle_pin(tree, event):
     pinned_windows[window_title] = new_state
     set_always_on_top(window_title, new_state)
 
-    new_icon = "📌" if new_state else "❌"
-    tree.item(item, values=(window_title, new_icon))
+    refresh_windows(tree, "📌 Always On Top")
 
 
 def unpin_all(tree):
     global pinned_windows
-    for title, pinned in list(pinned_windows.items()):
-        if pinned:
+    for title in list(pinned_windows.keys()):
+        if pinned_windows[title]:
             set_always_on_top(title, False)
             pinned_windows[title] = False
 
-    for item in tree.get_children():
-        window_title = tree.item(item, "values")[0]
-        tree.item(item, values=(window_title, "❌"))
+    refresh_windows(tree, "📌 Always On Top")
 
 
 def on_search_change(entry, tree, root_title):
