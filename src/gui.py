@@ -2,8 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from api import set_always_on_top, iter_window_titles
 
-
-# Track pinned states internally
+# Track pinned windows
 pinned_windows = {}
 
 
@@ -11,7 +10,6 @@ def refresh_windows(tree, status_label, root_title):
     global pinned_windows
     window_list = list(iter_window_titles(excludes=[root_title]))
 
-    # Clean old items
     for item in tree.get_children():
         tree.delete(item)
 
@@ -37,12 +35,10 @@ def toggle_pin(tree, event):
     window_title = tree.item(item, "values")[0]
     current_state = pinned_windows.get(window_title, False)
 
-    # Toggle state
     new_state = not current_state
     pinned_windows[window_title] = new_state
     set_always_on_top(window_title, new_state)
 
-    # Update icon
     new_icon = "📌" if new_state else "❌"
     tree.item(item, values=(window_title, new_icon))
 
@@ -52,7 +48,7 @@ def create_gui():
     root.title("📌 Always On Top")
     root.geometry("500x320")
     root.configure(bg="#1a1b26")
-    root.resizable(False, False)
+    root.resizable(True, True)
     root.attributes("-topmost", True)
 
     style = ttk.Style()
@@ -63,6 +59,7 @@ def create_gui():
     accent_color = "#7aa2f7"
     button_bg = "#24283b"
     hover_color = "#414868"
+    row_color = "#24283b"
 
     style.configure(
         ".", background=bg_color, foreground=fg_color, font=("Segoe UI", 10)
@@ -82,24 +79,49 @@ def create_gui():
         foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
     )
 
-    main = ttk.Frame(root, padding=30)
+    # Treeview custom styling
+    style.configure(
+        "Custom.Treeview",
+        background=row_color,
+        fieldbackground=row_color,
+        foreground=fg_color,
+        rowheight=28,
+        borderwidth=0,
+        relief="flat",
+    )
+    style.map("Custom.Treeview", background=[("selected", hover_color)])
+
+    main = ttk.Frame(root, padding=20)
     main.pack(expand=True, fill=tk.BOTH)
 
-    # --- Treeview: list of windows with icon ---
+    # --- Treeview with scrollbars ---
+    tree_frame = ttk.Frame(main)
+    tree_frame.pack(expand=True, fill=tk.BOTH)
+
     columns = ("title", "status")
-    tree = ttk.Treeview(main, columns=columns, show="headings", height=10)
+    tree = ttk.Treeview(
+        tree_frame,
+        columns=columns,
+        show="headings",
+        style="Custom.Treeview",
+    )
     tree.heading("title", text="Window Title")
     tree.heading("status", text="Pin")
-    tree.column("title", width=360, anchor=tk.W)
+    tree.column("title", anchor=tk.W)
     tree.column("status", width=60, anchor=tk.CENTER)
-    tree.pack(expand=True, fill=tk.BOTH)
 
-    # Clickable toggle
+    tree.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+
+    # Scrollbar
+    scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
+    tree.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
     tree.bind("<Button-1>", lambda e: toggle_pin(tree, e))
 
-    # --- Buttons ---
+    # Buttons
     buttons = ttk.Frame(main)
-    buttons.pack(pady=15)
+    buttons.pack(pady=10)
 
     ttk.Button(
         buttons,
@@ -107,12 +129,11 @@ def create_gui():
         command=lambda: refresh_windows(tree, status, root.title()),
     ).pack(side=tk.LEFT, padx=5)
 
-    # --- Status bar ---
+    # Status bar
     global status
     status = ttk.Label(main, text="Ready", font=("Segoe UI", 9), foreground="#565f89")
     status.pack(pady=(10, 0))
 
-    # Init
     refresh_windows(tree, status, root.title())
     root.mainloop()
 
