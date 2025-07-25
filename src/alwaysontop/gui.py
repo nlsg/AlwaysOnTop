@@ -41,6 +41,18 @@ def toggle_pin(tree, event):
     tree.item(item, values=(window_title, new_icon))
 
 
+def unpin_all(tree):
+    global pinned_windows
+    for title, pinned in list(pinned_windows.items()):
+        if pinned:
+            set_always_on_top(title, False)
+            pinned_windows[title] = False
+
+    for item in tree.get_children():
+        window_title = tree.item(item, "values")[0]
+        tree.item(item, values=(window_title, "❌"))
+
+
 def create_gui():
     root = tk.Tk()
     root.title("📌 Always On Top")
@@ -114,6 +126,15 @@ def create_gui():
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     tree.bind("<Button-1>", lambda e: toggle_pin(tree, e))
+
+    # Button to unpin all
+    button_frame = ttk.Frame(main)
+    button_frame.pack(pady=10)
+
+    unpin_all_btn = ttk.Button(
+        button_frame, text="✖️ Unpin All", command=lambda: unpin_all(tree)
+    )
+    unpin_all_btn.pack()
 
     # Automatically refresh when window is focused
     root.bind("<FocusIn>", lambda *_: refresh_windows(tree, root.title()))
