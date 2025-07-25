@@ -34,12 +34,10 @@ pip install .
 ### 3. Run the Application
 
 ```bash
-python -m alwaysontop
+pythonw -m alwaysontop
 ```
 
-
 ---
-
 
 ## 🛠️ Usage
 
