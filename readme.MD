@@ -9,10 +9,11 @@ Built with Python and Tkinter, it gives you total control over your workspace hi
 
 - 🔝 Pin any open window to stay above all others
 - ❌ Unpin a window and return it to normal behavior
-- 🔄 Refresh window list on the fly
+- 🔄 Refresh window list on the fly ( on focus )
 - 💻 Lightweight and minimal interface
 - 🎨 Dark-themed UI for visual comfort
 - 🪟 Built for Windows, using native APIs
+- 📌 Always On Top is always pined for accessability ( just minimize it )
 
 ---
 
@@ -43,9 +44,7 @@ pythonw -m alwaysontop
 
 1. Launch the application
 2. Click an item in the list to toggle always-on-top for that window
-3. Use "Refresh" to update the list of available windows
-
----
+3. Use "✖️ Unpin All" to unpin all pined windows
 
 ## 🤝 Contributing
 
