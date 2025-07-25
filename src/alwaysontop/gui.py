@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from api import set_always_on_top, iter_window_titles
+from .api import set_always_on_top, iter_window_titles
 
 # Track pinned windows
 pinned_windows = {}
