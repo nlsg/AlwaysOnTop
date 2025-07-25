@@ -4,7 +4,6 @@ import re
 import atexit
 from .api import set_always_on_top, iter_window_titles
 
-# Track pinned windows
 pinned_windows = {}
 search_pattern = ""
 
@@ -15,7 +14,7 @@ def refresh_windows(tree, root_title):
     try:
         pattern = re.compile(search_pattern, re.IGNORECASE)
     except re.error:
-        pattern = None  # invalid regex — show nothing
+        pattern = None
 
     window_list = list(iter_window_titles(excludes=[root_title]))
 
@@ -29,7 +28,6 @@ def refresh_windows(tree, root_title):
     # Sort: pinned windows first, then alphabetically
     filtered.sort(key=lambda x: (not x[1], x[0].lower()))
 
-    # Clear and re-populate tree
     for item in tree.get_children():
         tree.delete(item)
 
@@ -125,7 +123,6 @@ def create_gui():
     main = ttk.Frame(root, padding=20)
     main.pack(expand=True, fill=tk.BOTH)
 
-    # --- Search bar ---
     search_frame = ttk.Frame(main)
     search_frame.pack(fill=tk.X, pady=(0, 10))
 
@@ -138,7 +135,6 @@ def create_gui():
         "<KeyRelease>", lambda e: on_search_change(search_entry, tree, root.title())
     )
 
-    # --- Treeview with scrollbars ---
     tree_frame = ttk.Frame(main)
     tree_frame.pack(expand=True, fill=tk.BOTH)
 
@@ -162,7 +158,6 @@ def create_gui():
 
     tree.bind("<Button-1>", lambda e: toggle_pin(tree, e))
 
-    # Buttons
     button_frame = ttk.Frame(main)
     button_frame.pack(pady=10)
 
@@ -173,7 +168,6 @@ def create_gui():
     )
     unpin_all_btn.pack()
 
-    # Refresh when window gets focus
     root.bind("<FocusIn>", lambda *_: refresh_windows(tree, root.title()))
 
     refresh_windows(tree, root.title())
