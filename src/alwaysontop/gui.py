@@ -6,7 +6,7 @@ from .api import set_always_on_top, iter_window_titles
 pinned_windows = {}
 
 
-def refresh_windows(tree, status_label, root_title):
+def refresh_windows(tree, root_title):
     global pinned_windows
     window_list = list(iter_window_titles(excludes=[root_title]))
 
@@ -17,8 +17,6 @@ def refresh_windows(tree, status_label, root_title):
         pinned = pinned_windows.get(title, False)
         icon = "📌" if pinned else "❌"
         tree.insert("", tk.END, values=(title, icon))
-
-    status_label.config(text="Window list refreshed. Ready.")
 
 
 def toggle_pin(tree, event):
@@ -51,7 +49,6 @@ def create_gui():
     root.resizable(True, True)
     root.attributes("-topmost", True)
 
-    root.bind("<FocusIn>", lambda *_: refresh_windows(tree, status, root.title()))
     style = ttk.Style()
     style.theme_use("clam")
 
@@ -80,7 +77,6 @@ def create_gui():
         foreground=[("active", "#ffffff"), ("pressed", "#ffffff")],
     )
 
-    # Treeview custom styling
     style.configure(
         "Custom.Treeview",
         background=row_color,
@@ -113,27 +109,14 @@ def create_gui():
 
     tree.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
 
-    # Scrollbar
     scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     tree.bind("<Button-1>", lambda e: toggle_pin(tree, e))
 
-    # Buttons
-    buttons = ttk.Frame(main)
-    buttons.pack(pady=10)
+    # Automatically refresh when window is focused
+    root.bind("<FocusIn>", lambda *_: refresh_windows(tree, root.title()))
 
-    ttk.Button(
-        buttons,
-        text="🔄 Refresh",
-        command=lambda: refresh_windows(tree, status, root.title()),
-    ).pack(side=tk.LEFT, padx=5)
-
-    # Status bar
-    global status
-    status = ttk.Label(main, text="Ready", font=("Segoe UI", 9), foreground="#565f89")
-    status.pack(pady=(10, 0))
-
-    refresh_windows(tree, status, root.title())
+    refresh_windows(tree, root.title())
     root.mainloop()
